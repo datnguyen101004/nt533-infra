@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-backend
+spec:
+  selector:
+    app: todo-backend
+  ports:
+    - protocol: TCP
+      port: 8080        # Port trong cluster
+      targetPort: 8080  # Port container
+  type: ClusterIP      # Dùng nội bộ cluster, frontend kết nối bằng tên service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-backend
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    spec:
+      containers:
+        - name: todo-backend
+          image: datnguyen10102004/todo-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: "mysql-service:3306"
+            - name: DB_USERNAME
+              value: "root"
+            - name: DB_PASSWORD
+              value: "root"
